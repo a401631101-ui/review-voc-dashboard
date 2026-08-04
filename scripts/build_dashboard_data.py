@@ -122,11 +122,14 @@ def build(source, output):
     category_dir.mkdir(parents=True, exist_ok=True)
     files = {}
     for index, (name, payload) in enumerate(result["categories"].items()):
-        filename = f"category-{index:02d}.json"
-        (category_dir / filename).write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        filename = f"category-{index:02d}.js"
+        category_json = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+        category_script = f"window.REVIEW_CATEGORY_DATA=window.REVIEW_CATEGORY_DATA||{{}};window.REVIEW_CATEGORY_DATA[{json.dumps(name, ensure_ascii=False)}]={category_json};\n"
+        (category_dir / filename).write_text(category_script, encoding="utf-8")
         files[name] = f"categories/{filename}"
     manifest = {"months": result["months"], "categories": files}
-    (target / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    manifest_json = json.dumps(manifest, ensure_ascii=False, separators=(",", ":"))
+    (target / "manifest.js").write_text(f"window.REVIEW_MANIFEST={manifest_json};\n", encoding="utf-8")
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:

@@ -48,6 +48,6 @@
 python scripts/build_dashboard_data.py /path/to/评论.xlsx data
 ```
 
-脚本生成一个小型 `data/manifest.json` 和12个 `data/categories/*.json` 文件。页面首屏只读取清单和当前类目，切换类目时再按需加载其JSON。
+脚本生成一个小型 `data/manifest.js` 和12个 `data/categories/*.js` 文件。页面首屏只读取清单和当前类目，切换类目时再按需加载。使用脚本资源而不是 `fetch(JSON)`，因此既支持GitHub Pages，也支持直接双击本地 `file://` 页面。
 
 生成后应检查：12个品类是否齐全、月份范围、各片段样本量、体验分范围、主题提及率范围以及代表评论可追溯标签。

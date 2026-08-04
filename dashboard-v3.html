@@ -13,8 +13,7 @@
   <div class="layout">
 <main class="main">
 <section id="view-category">
-        <div class="page-head"><div><h1>12类目评论内容深度分析</h1><p>按类目、年月与子品牌/店铺筛选，查看主题总结及可追溯代表评论。</p></div><span class="badge">类目 × 时间 × 子品牌</span></div>
-        <div class="category-shell"><div class="card category-list" id="categoryList"><div class="loading-lines" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div><div id="categoryDetail"><section class="card load-state" id="loadState" role="status"><div class="loader" aria-hidden="true"></div><h2>正在加载评论分析数据</h2><p>首次打开需要下载分析数据，请稍候。</p></section></div></div>
+        <div class="category-shell"><aside class="card category-sidebar"><div id="sidebarFilters"></div><div class="sidebar-label">类目</div><div class="category-list" id="categoryList"><div class="loading-lines" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div></aside><div id="categoryDetail"><section class="card load-state" id="loadState" role="status"><div class="loader" aria-hidden="true"></div><h2>正在加载评论分析数据</h2><p>首次打开需要下载分析数据，请稍候。</p></section></div></div>
       </section>
 <div class="footer">方法：字段审计 → 可用文本过滤 → 精确文本去重 → 主题词组筛查 → 原文复核。当前无星级字段，不发布真实满意度。全局去重与类目内去重口径不同，各类目样本数不可直接求和。</div>
     </main>
@@ -23,5 +22,6 @@
 <script>window.__VOC_MANIFEST_ERROR__=false</script>
 <script src="data/manifest.js" defer onerror="window.__VOC_MANIFEST_ERROR__=true"></script>
 <script src="app.js" defer></script>
+<script src="app-v2.js" defer></script>
 </body>
 </html>

@@ -62,6 +62,9 @@ def rates(rows, mapping, limit):
             result.append([label, count, round(count * 100 / n, 1)])
     return sorted(result, key=lambda item: (-item[1], item[0]))[:limit]
 
+def matched_labels(text, mapping):
+    return [label for label, terms in mapping.items() if any(term in text for term in terms)]
+
 def theme_detail(theme, rows):
     words = THEMES[theme]
     matched = rows[rows["text"].map(lambda text: any(word in text for word in words))].copy()
@@ -141,7 +144,13 @@ def build(source, output):
                 rows = month_rows if shop == "全部店铺" else month_rows[month_rows["shop"] == shop]
                 if not rows.empty:
                     segments[f"{month}|{shop}"] = segment(rows, theme_names)
-        result["categories"][category] = {"shops": shops, "segments": segments}
+        review_rows = []
+        for _, row in category_rows.drop_duplicates("text").iterrows():
+            text = row["text"]
+            review_rows.append({"text": text, "shop": row["shop"], "month": row["month"],
+                                "keywords": matched_labels(text, KEYWORDS), "purposes": matched_labels(text, PURPOSES),
+                                "people": matched_labels(text, PEOPLE), "scenes": matched_labels(text, SCENES)})
+        result["categories"][category] = {"shops": shops, "segments": segments, "reviews": review_rows}
     target = Path(output)
     if target.suffix == ".js":
         target.write_text("window.REVIEW_FILTER_DATA=" + json.dumps(result, ensure_ascii=False, separators=(",", ":")) + ";\n", encoding="utf-8")

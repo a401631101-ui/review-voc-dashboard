@@ -18,7 +18,7 @@ async function load(c){
   if(loads.has(c.name))return loads.get(c.name);
   const file=manifest?.categories?.[c.name];
   if(!file)throw new Error(`缺少${c.name}数据映射`);
-  const task=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=`data/${file}?v=20260804-5`;s.onload=()=>{const p=window.REVIEW_CATEGORY_DATA?.[c.name];s.remove();if(!p)return reject(new Error(`${c.name}数据无效`));cache[c.name]=p;delete window.REVIEW_CATEGORY_DATA[c.name];resolve()};s.onerror=()=>{s.remove();reject(new Error(`${c.name}数据加载失败`))};document.head.appendChild(s)}).finally(()=>loads.delete(c.name));
+  const task=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=`data/${file}?v=20260804-6`;s.onload=()=>{const p=window.REVIEW_CATEGORY_DATA?.[c.name];s.remove();if(!p)return reject(new Error(`${c.name}数据无效`));cache[c.name]=p;delete window.REVIEW_CATEGORY_DATA[c.name];resolve()};s.onerror=()=>{s.remove();reject(new Error(`${c.name}数据加载失败`))};document.head.appendChild(s)}).finally(()=>loads.delete(c.name));
   loads.set(c.name,task);return task;
 }
 function sidebar(){
@@ -49,7 +49,7 @@ function keywordEvidence(){const s=segment(),available=(s.keywords||[]).map(x=>x
 function problems(s,all){
   const currentProblems=s.problems||[],base=new Map((all?.problems||[]).map(x=>[x.title,x.rate]));
   if(!currentProblems.length)return '<div class="empty-evidence">当前范围没有足够的问题证据</div>';
-  return currentProblems.slice(0,4).map((p,i)=>{const delta=state.month==='全部时间'?null:Math.round((p.rate-(base.get(p.title)||0))*10)/10;const qs=p.quotes?.map(q=>`<blockquote>“${esc(q.text)}”<footer>${esc(q.shop)} · ${esc(q.month)}</footer></blockquote>`).join('')||'';return `<article class="problem-item"><div class="problem-rank">${['⚠️','🎯','🔍','🧩'][i]}</div><div class="problem-main"><div class="problem-title"><h3>${esc(p.title)}</h3><span>${fmt(p.count)}条 · ${p.rate}%${delta===null?'':` · 较全期${delta>=0?'+':''}${delta}pct`}</span></div><div class="impact-track"><i style="width:${Math.min(100,p.rate*5)}%"></i></div><div class="problem-logic"><p><b>🔍 为何发生</b>${esc(p.cause)}</p><p><b>⚡ 业务影响</b>${esc(p.impact)}</p></div>${qs}</div></article>`}).join('')
+  return currentProblems.slice(0,4).map((p,i)=>{const delta=state.month==='全部时间'?null:Math.round((p.rate-(base.get(p.title)||0))*10)/10,rows=relatedReviews('problems',p.title);return `<article class="problem-item"><div class="problem-rank">${['⚠️','🎯','🔍','🧩'][i]}</div><div class="problem-main"><div class="problem-title"><h3>${esc(p.title)}</h3><span>${fmt(rows.length)}条 · ${p.rate}%${delta===null?'':` · 较全期${delta>=0?'+':''}${delta}pct`}</span></div><div class="impact-track"><i style="width:${Math.min(100,p.rate*5)}%"></i></div><div class="problem-logic"><p><b>🔍 为何发生</b>${esc(p.cause)}</p><p><b>⚡ 业务影响</b>${esc(p.impact)}</p></div><div class="problem-review-head"><b>💬 当前筛选区间全部问题评论</b><span>${fmt(rows.length)}条有效去重评论 · 下滑查看</span></div><div class="problem-review-scroll">${reviewCards(rows)}</div></div></article>`}).join('')
 }
 function brandAnalysis(c,s){
   const rows=data().shops.map(shop=>{const x=data().segments[`${state.month}|${shop}`];return x?{shop,...x}:null}).filter(Boolean);

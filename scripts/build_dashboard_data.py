@@ -65,6 +65,19 @@ def rates(rows, mapping, limit):
 def matched_labels(text, mapping):
     return [label for label, terms in mapping.items() if any(term in text for term in terms)]
 
+def problem_text_match(title, terms, text):
+    if not any(term in text for term in terms):
+        return False
+    if title == "排水与防臭冲突":
+        clear_failure = any(term in text for term in ["排不出去", "排水慢", "溢", "返味"])
+        positive_anti_odor = any(term in text for term in ["防止反味", "没有反味", "无反味", "不反味", "隔绝反味"])
+        if positive_anti_odor and not clear_failure:
+            return False
+    return True
+
+def matched_problems(category, text):
+    return [title for title, terms, _, _ in PROBLEMS[category] if problem_text_match(title, terms, text)]
+
 def theme_detail(theme, rows):
     words = THEMES[theme]
     matched = rows[rows["text"].map(lambda text: any(word in text for word in words))].copy()
@@ -91,7 +104,7 @@ def theme_detail(theme, rows):
 def problem_details(category, rows):
     total, result = len(rows), []
     for title, terms, cause, impact in PROBLEMS[category]:
-        matched = rows[rows["text"].map(lambda text: any(term in text for term in terms))].copy()
+        matched = rows[rows["text"].map(lambda text: problem_text_match(title, terms, text))].copy()
         if matched.empty:
             continue
         matched["rank"] = matched.apply(lambda row: sum(term in row["text"] for term in terms) * 3 + min(float(row["helpful"]), 10) / 10 + min(len(row["text"]), 180) / 180, axis=1)
@@ -149,7 +162,8 @@ def build(source, output):
             text = row["text"]
             review_rows.append({"text": text, "shop": row["shop"], "month": row["month"],
                                 "keywords": matched_labels(text, KEYWORDS), "purposes": matched_labels(text, PURPOSES),
-                                "people": matched_labels(text, PEOPLE), "scenes": matched_labels(text, SCENES)})
+                                "people": matched_labels(text, PEOPLE), "scenes": matched_labels(text, SCENES),
+                                "problems": matched_problems(category, text)})
         result["categories"][category] = {"shops": shops, "segments": segments, "reviews": review_rows}
     target = Path(output)
     if target.suffix == ".js":
